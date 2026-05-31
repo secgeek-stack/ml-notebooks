@@ -4,7 +4,7 @@ A small-scale empirical study of reward model vulnerability and hardening in a m
 
 ## What this is
 
-Reward models are trained judges. Given two competing assessments of the same evidence, they learn which one is better — and that learned preference can become a training signal for a downstream model.
+Reward models are trained judges. Given two competing assessments of the same evidence, they learn which one is better and that learned preference can become a training signal for a downstream model.
 
 The problem: a reward model trained on too few examples, or on examples with surface-level correlations, can be fooled. A wrong assessment dressed in confident technical language can score higher than a correct one without the reasoning improving. That is reward hacking.
 
