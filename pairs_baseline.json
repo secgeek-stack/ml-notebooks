@@ -1,0 +1,294 @@
+[
+  {
+    "id": "fn_001",
+    "telemetry": {
+      "install_source": "sideload_browser",
+      "package": "com.batteryguru.pro",
+      "app_category": "battery_utility",
+      "signing_certificate": {
+        "issuer": "self_signed",
+        "matches_known_developer": false,
+        "certificate_age_days": 3
+      },
+      "permissions_requested": [
+        "RECEIVE_SMS",
+        "READ_SMS"
+      ],
+      "permissions_granted": [
+        "RECEIVE_SMS",
+        "READ_SMS"
+      ],
+      "permission_grant_type": "runtime",
+      "dangerous_ops": [
+        "OP_REQUEST_INSTALL_PACKAGES",
+        "OP_READ_SMS"
+      ],
+      "sms_reads_count": 47,
+      "sms_reads_window_seconds": 5,
+      "accessibility_service_enabled": true,
+      "execution_context": {
+        "foreground": false,
+        "user_interaction_present": false,
+        "screen_on": false,
+        "battery_spike_percent": 12
+      },
+      "ipc_calls": [
+        {
+          "target_package": "com.android.providers.telephony",
+          "method": "query",
+          "data_accessed": "sms_inbox"
+        }
+      ],
+      "network_egress": [
+        {
+          "method": "POST",
+          "size_kb": 9,
+          "destination": "api-sync.batterytelemetry.test:443",
+          "dns_queries": [
+            "batterytelemetry.test"
+          ],
+          "domain_seen_before": false,
+          "tls": true
+        }
+      ],
+      "scheduled_jobs": [
+        {
+          "type": "periodic",
+          "interval_minutes": 15,
+          "requires_network": true
+        }
+      ]
+    },
+    "chosen": "Bulk SMS reads (47 in 5s) immediately after a sideloaded battery app gained READ_SMS plus accessibility, then egress of a small payload to a never-seen domain and a 15-min recurring job. Consistent with SMS/OTP exfiltration and persistence; a battery utility has no legitimate need for SMS access.",
+    "rejected": "App requested permissions and made a network call after install. Many apps sync data on first launch; nothing here is unusual.",
+    "rejected_error_type": "false_negative",
+    "preference_strength": "clear"
+  },
+  {
+    "id": "fp_001",
+    "telemetry": {
+      "install_source": "play_store",
+      "package": "org.thoughtcrime.securesms",
+      "app_category": "messaging",
+      "signing_certificate": {
+        "issuer": "Signal_Technology_Foundation",
+        "matches_known_developer": true,
+        "certificate_age_days": 1820
+      },
+      "permissions_requested": [
+        "READ_SMS",
+        "READ_CONTACTS"
+      ],
+      "permissions_granted": [
+        "READ_SMS",
+        "READ_CONTACTS"
+      ],
+      "permission_grant_type": "runtime_user_initiated",
+      "dangerous_ops": [
+        "OP_READ_SMS"
+      ],
+      "sms_reads_count": 30,
+      "sms_reads_window_seconds": 8,
+      "accessibility_service_enabled": false,
+      "execution_context": {
+        "foreground": true,
+        "user_interaction_present": true,
+        "screen_on": true,
+        "battery_spike_percent": 4
+      },
+      "ipc_calls": [
+        {
+          "target_package": "com.android.providers.telephony",
+          "method": "query",
+          "data_accessed": "sms_inbox"
+        }
+      ],
+      "network_egress": [
+        {
+          "method": "TLS",
+          "size_kb": 4,
+          "destination": "textsecure-service.whispersystems.org:443",
+          "dns_queries": [
+            "textsecure-service.whispersystems.org"
+          ],
+          "domain_seen_before": true,
+          "tls": true
+        }
+      ],
+      "scheduled_jobs": []
+    },
+    "chosen": "Play Store install of a well-known messaging app the user is explicitly setting up as SMS handler. SMS reads are user-initiated during setup, permissions granted interactively, egress to the app documented service domain. Pattern matches legitimate first-run import, not exfiltration.",
+    "rejected": "App is reading SMS in bulk and sending data over the network right after install. Bulk SMS access plus egress is a classic SMS-stealer pattern; flag as exfiltration.",
+    "rejected_error_type": "false_positive",
+    "preference_strength": "clear"
+  },
+  {
+    "id": "rvwr_001",
+    "telemetry": {
+      "install_source": "play_store",
+      "package": "com.photovault.app",
+      "app_category": "photo_utility",
+      "signing_certificate": {
+        "issuer": "self_signed",
+        "matches_known_developer": false,
+        "certificate_age_days": 12
+      },
+      "permissions_requested": [
+        "READ_EXTERNAL_STORAGE"
+      ],
+      "permissions_granted": [
+        "READ_EXTERNAL_STORAGE"
+      ],
+      "permission_grant_type": "install_time",
+      "dangerous_ops": [
+        "OP_CAMERA",
+        "OP_READ_EXTERNAL_STORAGE"
+      ],
+      "file_reads_count": 1200,
+      "file_reads_window_seconds": 4,
+      "accessibility_service_enabled": false,
+      "execution_context": {
+        "foreground": false,
+        "user_interaction_present": false,
+        "screen_on": false,
+        "battery_spike_percent": 28
+      },
+      "ipc_calls": [],
+      "network_egress": [
+        {
+          "method": "POST",
+          "size_mb": 240,
+          "duration_seconds": 180,
+          "destination": "cdn-backup.unknownhost.test:443",
+          "dns_queries": [
+            "unknownhost.test",
+            "cdn-backup.unknownhost.test"
+          ],
+          "domain_seen_before": false,
+          "tls": true
+        }
+      ],
+      "scheduled_jobs": [
+        {
+          "type": "periodic",
+          "interval_minutes": 60,
+          "requires_network": true
+        }
+      ]
+    },
+    "chosen": "A 1200-file storage read burst immediately followed by 240MB egress to a brand-new domain plus an hourly upload job indicates bulk media exfiltration disguised as backup. Volume and fresh destination are the key indicators.",
+    "rejected": "The app used the camera (OP_CAMERA), which is invasive and a strong sign of spyware. Flag as attack.",
+    "rejected_error_type": "right_verdict_wrong_reason",
+    "preference_strength": "subtle"
+  },
+  {
+    "id": "msev_001",
+    "telemetry": {
+      "install_source": "managed_play_store",
+      "package": "com.vpnsecure.client",
+      "app_category": "vpn",
+      "signing_certificate": {
+        "issuer": "VPNSecure_Inc",
+        "matches_known_developer": true,
+        "certificate_age_days": 730
+      },
+      "permissions_requested": [
+        "BIND_VPN_SERVICE"
+      ],
+      "permissions_granted": [
+        "BIND_VPN_SERVICE"
+      ],
+      "permission_grant_type": "device_policy",
+      "dangerous_ops": [
+        "OP_FINE_LOCATION"
+      ],
+      "location_accesses_count": 1,
+      "accessibility_service_enabled": false,
+      "execution_context": {
+        "foreground": false,
+        "user_interaction_present": false,
+        "screen_on": false,
+        "battery_spike_percent": 6
+      },
+      "ipc_calls": [
+        {
+          "target_package": "com.android.settings",
+          "method": "bind",
+          "data_accessed": "vpn_configuration"
+        }
+      ],
+      "network_egress": [
+        {
+          "method": "VPN_TUNNEL",
+          "destination": "vpn-gw.corp-managed.test:443",
+          "dns_queries": [
+            "corp-managed.test"
+          ],
+          "domain_seen_before": true,
+          "managed_gateway": true,
+          "routes_all_traffic": true
+        }
+      ],
+      "scheduled_jobs": [],
+      "device_management": "corporate_mdm"
+    },
+    "chosen": "IT-deployed VPN client routing traffic through the known corporate gateway is expected behavior. Single location use consistent with a connectivity check. No action needed beyond normal logging.",
+    "rejected": "The app captures ALL network traffic and accessed location. Even though it is likely the corporate VPN, total traffic interception is extremely high-risk and should be escalated to high severity for review.",
+    "rejected_error_type": "miscalibrated_severity",
+    "preference_strength": "subtle"
+  },
+  {
+    "id": "subw_001",
+    "telemetry": {
+      "install_source": "sideload",
+      "package": "com.gameboost.tool",
+      "app_category": "game_utility",
+      "signing_certificate": {
+        "issuer": "self_signed",
+        "matches_known_developer": false,
+        "certificate_age_days": 1
+      },
+      "permissions_requested": [],
+      "permissions_granted": [],
+      "permission_grant_type": "none",
+      "dangerous_ops": [
+        "OP_SYSTEM_ALERT_WINDOW"
+      ],
+      "accessibility_service_enabled": true,
+      "overlay_target_package": "com.bank.app",
+      "accessibility_reads_text_fields": true,
+      "accessibility_target_package": "com.bank.app",
+      "execution_context": {
+        "foreground": false,
+        "user_interaction_present": true,
+        "screen_on": true,
+        "battery_spike_percent": 8
+      },
+      "ipc_calls": [
+        {
+          "target_package": "com.bank.app",
+          "method": "accessibility_read",
+          "data_accessed": "text_fields"
+        }
+      ],
+      "network_egress": [
+        {
+          "method": "POST",
+          "size_kb": 3,
+          "destination": "collector.gb-stats.test:443",
+          "dns_queries": [
+            "gb-stats.test",
+            "collector.gb-stats.test"
+          ],
+          "domain_seen_before": false,
+          "tls": true
+        }
+      ],
+      "scheduled_jobs": []
+    },
+    "chosen": "Accessibility plus overlay drawing specifically over a banking app while reading its text fields, then small egress to a new domain, is the overlay-credential-theft pattern. Banking-app targeting and field-reading are the decisive signals, not generic permission use.",
+    "rejected": "The app has accessibility access, draws overlays, and sends data to an unknown server. Multiple dangerous capabilities combined like this indicate malware. Flag as attack.",
+    "rejected_error_type": "subtly_worse",
+    "preference_strength": "subtle"
+  }
+]
