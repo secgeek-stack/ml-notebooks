@@ -1,6 +1,6 @@
 # Reward Hacking and Hardening Notebook
 
-A small-scale empirical study of reward model vulnerability and hardening in a mobile security threat assessment domain.
+A hands-on notebook implementing the core concepts from Bukharin et al. (2025) — adversarial training of reward models — at small scale, grounded in a mobile security threat assessment domain.
 
 ## What this is
 
